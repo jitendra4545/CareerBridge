@@ -2,7 +2,17 @@
 require('dotenv').config();
 const express = require('express');
 const connection = require('./config/db');
+const AdminRouter = require('./routes/adminRoute');
+const AspirantRouter = require('./routes/aspirantRoute');
+const adminAuthMiddleware = require('./middleware/adminAuthMiddleware');
+const JobRouter = require('./routes/jobRoute');
 const app = express();
+
+app.use(express.json());
+app.use("/admin", AdminRouter);
+app.use("/aspirants", AspirantRouter);
+app.use('/jobs',JobRouter)
+
 
 app.get("/", (req, res) => {
     res.send("Hello World");

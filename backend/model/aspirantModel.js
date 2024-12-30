@@ -35,7 +35,7 @@ const AspirantSchema = new mongoose.Schema({
         enum: ['10th', '12th', 'Graduate', 'Postgraduate', 'Other'],
     },
     dateOfBirth: {
-        type: Date,
+        type: String,
         required: true,
     },
     gender: {
@@ -51,6 +51,11 @@ const AspirantSchema = new mongoose.Schema({
             documentURL: {
                 type: String,
             },
+            isAcceptable: {
+                type: String,
+                enum: ['Pending', 'Rejected', 'Accepted'],
+                default: 'Pending',
+            }
         },
     ],
     applications: [
@@ -77,6 +82,7 @@ const AspirantSchema = new mongoose.Schema({
                 type: String,
                 default: null,
             },
+
             history: [
                 {
                     status: {
@@ -93,13 +99,18 @@ const AspirantSchema = new mongoose.Schema({
                 type: Date,
                 default: Date.now,
             },
+            slot: {
+                type: String,
+                default: null,
+            },
+
         },
     ],
     isVerified: {
         type: Boolean,
         default: false,
     },
-    verificationStatus: {
+    verificationStatusByAdmin: {
         type: String,
         enum: ['Pending', 'Verified', 'Rejected'],
         default: 'Pending',
@@ -114,4 +125,6 @@ AspirantSchema.pre('save', function (next) {
     next();
 });
 
-module.exports = mongoose.model('Aspirant', AspirantSchema);
+const AspirantModel = mongoose.model('Aspirant', AspirantSchema);
+
+module.exports = { AspirantModel };
