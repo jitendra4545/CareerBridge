@@ -1,23 +1,18 @@
 import logo from './logo.svg';
 import './App.css';
+import { AllRoutes } from './pages/AllRoutes';
+import DocumentManager from './pages/DocumentManager';
+import JobPortal from './pages/JobPortal';
+import UserProfile from './pages/UserProfile';
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <AllRoutes/>
+      {/* <DocumentManager/> */}
+      {/* <JobPortal/> */}
+      {/* <UserProfile/> */}
     </div>
   );
 }
