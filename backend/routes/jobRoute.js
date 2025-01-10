@@ -11,4 +11,5 @@ JobRouter.get('/:id', getJobDetails);
 JobRouter.delete('/:id', adminAuthMiddleware, deleteJob);
 JobRouter.post('/:jobId/apply', authMiddleware, applyJob);
 JobRouter.get("/:jobId/applications", adminAuthMiddleware, getJobApplicants);
+
 module.exports = JobRouter;

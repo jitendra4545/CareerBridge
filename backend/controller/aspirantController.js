@@ -97,6 +97,7 @@ const loginAspirant = async (req, res) => {
         const { email, password } = req.body;
 
         const aspirant = await AspirantModel.findOne({ email });
+        console.log(aspirant)
         if (!aspirant) {
             return res.status(400).json({ message: 'Invalid email or password.' });
         }
@@ -145,17 +146,17 @@ const updateProfile = async (req, res) => {
     try {
         const aspirantId = req.user.id;
         const updates = req.body;
-        const updatedProfile = await AspirantModel.findByIdAndUpdate(
+        const updatedProfiles = await AspirantModel.findByIdAndUpdate(
             aspirantId,
             updates,
             { new: true, runValidators: true }
         ).select('-password');
 
-        if (!updatedProfile) {
+        if (!updatedProfiles) {
             return res.status(404).json({ message: 'Profile not found' });
         }
-
-        res.status(200).json(updatedProfile);
+        console.log(updatedProfiles)
+        res.status(200).json(updatedProfiles);
     } catch (error) {
         console.error(error);
         if (error.name === 'ValidationError') {
@@ -172,7 +173,7 @@ const uploadDocument = async (req, res) => {
     try {
         const { documentType } = req.body;
         const file = req.file;
-
+        const aspirantId = req.user.id;
         if (!file || !documentType) {
             return res.status(400).json({
                 error: 'Both documentType and file are required',
@@ -203,7 +204,7 @@ const uploadDocument = async (req, res) => {
 
         const fileUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.S3_BUCKET_REGION}.amazonaws.com/${fileKey}`;
 
-        const aspirantId = req.user.id;
+
         const updatedAspirant = await AspirantModel.findByIdAndUpdate(
             aspirantId,
             {
@@ -238,7 +239,7 @@ const uploadDocument = async (req, res) => {
 
 const deleteDocument = async (req, res) => {
     try {
-        const { documentId } = req.body;
+        const { documentId } = req.params;
 
         if (!documentId) {
             return res.status(400).json({ error: 'Document ID is required' });
@@ -285,6 +286,22 @@ const deleteDocument = async (req, res) => {
         res.status(500).json({ message: 'Error deleting document' });
     }
 };
+
+
+
+const getDocument = async (req, res) => {
+    try {
+        const aspirantId = req.user.id;
+        let alldocs = await AspirantModel.findById(aspirantId)
+        if (!alldocs) {
+            return res.status(404).json({ message: 'Aspirant not found' });
+        }
+        res.status(200).json(alldocs.documents);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching documents' });
+    }
+}
 
 
 
@@ -343,8 +360,6 @@ const toggleDocumentStatus = async (req, res) => {
 const getApplications = async (req, res) => {
     try {
         const aspirantId = req.user.id;
-
-
         const aspirant = await AspirantModel.findById(aspirantId).populate('applications.jobId');
 
         if (!aspirant) {
@@ -371,4 +386,4 @@ const getApplications = async (req, res) => {
 
 
 
-module.exports = { registerAspirant, loginAspirant, verifyEmail, getProfile, updateProfile, uploadDocument, deleteDocument, toggleDocumentStatus, getApplications };
+module.exports = { registerAspirant, loginAspirant, verifyEmail, getProfile, updateProfile, uploadDocument, deleteDocument, toggleDocumentStatus, getApplications, getDocument };

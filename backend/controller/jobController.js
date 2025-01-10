@@ -72,7 +72,7 @@ const applyJob = async (req, res) => {
             return res.status(404).json({ message: 'Aspirant not found' });
         }
 
-        if (aspirant.verificationStatusByAdmin !== 'Accepted') {
+        if (aspirant.verificationStatusByAdmin !== 'Verified') {
             return res.status(403).json({
                 message: 'You are not allowed to apply for jobs. Your account is not verified by admin. Please wait for verification.',
             });
@@ -146,6 +146,8 @@ const getJobApplicants = async (req, res) => {
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+
 
 
 module.exports = { createJob, updateJob, getAllJobs, getJobDetails, deleteJob, applyJob ,getJobApplicants};
