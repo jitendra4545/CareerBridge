@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const JobCard = ({ job, isApplied, onApply, onNotify, onShowMore }) => {
   const cardStyles = {
@@ -63,25 +64,36 @@ const JobCard = ({ job, isApplied, onApply, onNotify, onShowMore }) => {
     color: job.paymentStatus === 'Paid' ? '#2F855A' : '#C53030',
   };
 
+  const navigate=useNavigate()
+
+  const handleSingle=(id)=>{
+    navigate(`/job-details/${id}`)
+  }
+
+
   return (
     <div style={containerStyles}>
       <div style={cardStyles}>
-        <h3 style={titleStyles}>{job.postName}</h3>
+        <h3 style={titleStyles}>{job.postName||""}</h3>
         <div style={detailStyles}>
-          <strong>Recruitment Board:</strong> {job.recruitmentBoard}
+          <strong>Recruitment Board:</strong> {job.recruitmentBoard||""}
         </div>
         <div style={detailStyles}>
-          <strong>Qualification:</strong> {job.qualification}
+          <strong>Qualification:</strong> {job.qualification.join(', ')||""}
         </div>
         <div style={detailStyles}>
-          <strong>Post Date:</strong> {job.postDate}
+          <strong>Post Date:</strong> {new Date(job.postDate).toLocaleDateString()||""}
         </div>
         <div style={detailStyles}>
-          <strong>Last Date:</strong> {job.lastDate}
+          <strong>Last Date:</strong> {new Date(job.lastDate).toLocaleDateString()||""}
         </div>
         <div style={detailStyles}>
-          <strong>Details:</strong> {job.details}
+          <strong>Job Category:</strong> {job.jobCategory||""}
         </div>
+        <div style={detailStyles}>
+          <strong>Status:</strong> {job.status||""}
+        </div>
+       
         {isApplied ? (
           <div style={{ marginTop: '10px' }}>
             <div style={statusStyles}>Status: {job.status}</div>
@@ -92,7 +104,7 @@ const JobCard = ({ job, isApplied, onApply, onNotify, onShowMore }) => {
         ) : (
           <button
             style={buttonStyles}
-            onClick={() => onApply(job.id)}
+            onClick={() => onApply(job._id)}
           >
             Apply Now
           </button>
@@ -105,7 +117,7 @@ const JobCard = ({ job, isApplied, onApply, onNotify, onShowMore }) => {
         </button>
         <button
           style={buttonStyles}
-          onClick={() => onShowMore(job.id)}
+          onClick={() => handleSingle(job?._id)}
         >
           Show More Information
         </button>
@@ -129,3 +141,63 @@ const JobCard = ({ job, isApplied, onApply, onNotify, onShowMore }) => {
 };
 
 export default JobCard;
+
+
+
+// contactEmail
+// : 
+// "hr@techcorp.com"
+// contactPhone
+// : 
+// "9123456789"
+// createdAt
+// : 
+// "2024-12-30T14:41:37.977Z"
+// experienceRequired
+// : 
+// "1-3 Years"
+// jobCategory
+// : 
+// "Private"
+// jobType
+// : 
+// "Contract"
+// lastDate
+// : 
+// "Mon Dec 30 2024 05:30:00 GMT+0530 (India Standard Time)"
+// location
+// : 
+// "Bangalore"
+// moreInformation
+// : 
+// "Check the careers page at techcorp.com."
+// numberOfOpenings
+// : 
+// 3
+// postDate
+// : 
+// "Wed Nov 20 2024 05:30:00 GMT+0530 (India Standard Time)"
+// postName
+// : 
+// "Software Developer"
+// qualification
+// : 
+// (2) ['B.Tech in Computer Science', 'MCA']
+// recruitmentBoard
+// : 
+// "TechCorp Solutions"
+// salaryRange
+// : 
+// {min: 60000, max: 120000}
+// skills
+// : 
+// (3) ['JavaScript', 'Node.js', 'React']
+// status
+// : 
+// "Open"
+// updatedAt
+// : 
+// "2024-12-30T14:41:37.977Z"
+// _id
+// : 
+// "6772b121dc9cc976917fe1d4"

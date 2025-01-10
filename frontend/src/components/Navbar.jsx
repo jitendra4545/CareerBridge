@@ -1,14 +1,16 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Search, ArrowLeft, ArrowRight, RotateCcw, Maximize } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { getUser } from '../redux/Auth/action'
 
-const Navbar = ({ title = "Career Bridge", userName = "User Name" }) => {
+const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false)
 
   const headerStyles = {
     display: 'flex',
     alignItems: 'center',
-    padding: '16px',
+    padding: '0px 16px', // Reduced padding top and bottom
     borderBottom: '1px solid #eee',
     gap: '12px'
   }
@@ -40,8 +42,9 @@ const Navbar = ({ title = "Career Bridge", userName = "User Name" }) => {
 
   const profileButtonStyles = {
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
-    gap: '8px',
+    gap: '4px',
     padding: '8px',
     border: 'none',
     background: 'none',
@@ -88,13 +91,24 @@ const Navbar = ({ title = "Career Bridge", userName = "User Name" }) => {
     color: '#666'
   }
 
+  const dispatch=useDispatch()
+
+  useEffect(() => {
+    dispatch(getUser())
+  }, [])
+
+const {user,loading,error}=useSelector((state)=>state.AuthReducer)
+console.log(user,loading,error)
+
   return (
     <header style={headerStyles}>
       <div style={navigationStyles}>
         {/* <button style={actionButtonStyles}><ArrowLeft size={20} /></button>
         <button style={actionButtonStyles}><ArrowRight size={20} /></button>
         <button style={actionButtonStyles}><RotateCcw size={20} /></button> */}
-        <span style={{ margin: '0 8px' }}>{title}</span>
+       <Link to={"/user-page"}> <h1 style={{ fontSize: '18px', fontWeight: 'bold', color: '#38b2ac', marginBottom: '10px' }}>
+          Career Bridge 
+        </h1></Link>
       </div>
 
       <div style={searchContainerStyles}>
@@ -105,7 +119,7 @@ const Navbar = ({ title = "Career Bridge", userName = "User Name" }) => {
         />
       </div>
 
-      <button style={actionButtonStyles}><Search size={20} /></button>
+      {/* <button style={actionButtonStyles}><Search size={20} /></button> */}
       {/* <button style={actionButtonStyles}><Maximize size={20} /></button> */}
 
       <div style={profileContainerStyles}>
@@ -114,13 +128,22 @@ const Navbar = ({ title = "Career Bridge", userName = "User Name" }) => {
           onClick={() => setIsProfileOpen(!isProfileOpen)}
         >
           <div style={profileImageStyles}></div>
-          <span>Hi, {userName}</span>
+          <span>Hi, {user?.name}</span>
         </button>
 
         <div style={dropdownStyles}>
          <Link to={'/profile'}><button style={dropdownItemStyles}>Profile view/edit</button></Link> 
          <Link to="/upload-docs"><button style={dropdownItemStyles}>View/upload docs</button></Link> 
-          <button style={dropdownItemStyles}>Logout</button>
+         <button
+  style={dropdownItemStyles}
+  onClick={() => {
+    localStorage.removeItem('token'); // Replace 'token' with the key you used for storing the token
+    alert('You have been logged out.');
+    window.location.reload(); // Optional: refresh the page or redirect to a login page
+  }}
+>
+  Logout
+</button>
         </div>
       </div>
     </header>
@@ -128,4 +151,3 @@ const Navbar = ({ title = "Career Bridge", userName = "User Name" }) => {
 }
 
 export default Navbar
-

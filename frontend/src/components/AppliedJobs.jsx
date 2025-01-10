@@ -1,5 +1,6 @@
 import React from 'react'
 import JobCard from './JobCard'
+import { AppliedJobCard } from './AppliedJobCard'
 
 
 const AppliedJobs = ({ appliedJobs }) => {
@@ -14,14 +15,14 @@ const AppliedJobs = ({ appliedJobs }) => {
     gap: '5px',
     padding: '10px'
   }
-
+console.log("ddssadas",appliedJobs)
   return (
     <div style={containerStyles}>
       <div style={gridStyles}>
         {appliedJobs.map(job => (
-          <JobCard
+          <AppliedJobCard
             key={job.id}
-            job={job}
+            job={job?.application}
             isApplied={true}
           />
         ))}

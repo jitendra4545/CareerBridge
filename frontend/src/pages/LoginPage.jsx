@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import BaseUrl from '../utils/Api';
+import { useDispatch, useSelector } from 'react-redux';
+import { UserLogin, UserRegister } from '../redux/Auth/action';
+
 const LoginPage = () => {
   const [isRegistering, setIsRegistering] = useState(false);
-
+const token1=localStorage.getItem('token')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -13,22 +17,37 @@ const LoginPage = () => {
     gender: '',
   });
 
+  const navigate=useNavigate()
+const dispatch=useDispatch()
+const {user,token,loading,error}=useSelector(state=>state.AuthReducer)
+console.log(loading,error,token1)
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
-
-  const handleFormSubmit = (e) => {
+// console.log(BaseUrl)
+  const handleFormSubmit = async(e) => {
     e.preventDefault();
     if (isRegistering) {
       console.log('Registering user:', formData);
       // Registration logic goes here
+      dispatch(UserRegister(formData)).then(()=>{
+        navigate("/login")
+        
+      })
+      // .then(()=>{
+      // navigate("/login")
+      // })
     } else {
       console.log('Logging in user:', { email: formData.email, password: formData.password });
-      // Login logic goes here
+      dispatch(UserLogin(formData)).then(()=>{  
+        navigate("/user-page")
+       
+      } )
     }
   };
-
+ 
   return (
     <div
       style={{
@@ -87,7 +106,7 @@ const LoginPage = () => {
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', color: '#4a5568' }}>Phone</label>
                 <input
-                  type="text"
+                  type="number"
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
@@ -206,7 +225,7 @@ const LoginPage = () => {
               }}
             />
           </div>
-         <Link to='/user-page'><button
+         <button
             type="submit"
             style={{
               width: '100%',
@@ -224,7 +243,7 @@ const LoginPage = () => {
           >
             {isRegistering ? 'Register' : 'Login'}
           </button>
-          </Link> 
+          
         </form>
         <p style={{ marginTop: '20px', textAlign: 'center', color: '#4a5568', fontSize: '14px' }}>
           {isRegistering ? 'Already have an account?' : "Don't have an account?"}{' '}
@@ -246,3 +265,6 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
+
+

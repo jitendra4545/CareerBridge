@@ -1,13 +1,28 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import AppliedJobs from '../components/AppliedJobs'
 import AllJobs from '../components/AllJobs'
 import Navbar from '../components/Navbar'
+import { useDispatch, useSelector } from 'react-redux'
+import { getAppliedJobs, getJobs } from '../redux/Job/action'
+import axios from 'axios'
+import BaseUrl from '../utils/Api'
 
 
 const JobPortal = () => {
   const [activeTab, setActiveTab] = useState('all')
-  const [appliedJobs, setAppliedJobs] = useState([])
+  // const [appliedJobs, setAppliedJobs] = useState([])
 
+
+
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(getJobs())
+    dispatch(getAppliedJobs())
+  }, [])
+
+  const { allJobs,appliedJobs, loading } = useSelector((state) => state.JobReducer)
+  console.log(allJobs, loading,appliedJobs)
   const containerStyles = {
     maxWidth: '1200px',
     margin: '0 auto',
@@ -30,81 +45,55 @@ const JobPortal = () => {
     fontWeight: 'bold'
   })
 
-  // Sample jobs data
-  const allJobs = [
-    {
-      id: 1,
-      recruitmentBoard: 'State Public Service Commission',
-      postName: 'Administrative Officer',
-      qualification: 'Bachelor\'s Degree',
-      postDate: '2024-01-01',
-      lastDate: '2024-02-01',
-      details: 'Looking for experienced administrators',
-      status: 'Under Review',
-      paymentStatus: 'Paid'
-    },
-    {
-      id: 2,
-      recruitmentBoard: 'Railway Recruitment Board',
-      postName: 'Junior Engineer',
-      qualification: 'B.Tech/Diploma',
-      postDate: '2024-01-05',
-      lastDate: '2024-02-05',
-      details: 'Technical position for railway maintenance',
-      status: 'Accepted',
-      paymentStatus: 'Pending'
-    },
-    {
-      id: 3,
-      recruitmentBoard: 'Staff Selection Commission',
-      postName: 'Tax Inspector',
-      qualification: 'Bachelor\'s Degree',
-      postDate: '2024-01-10',
-      lastDate: '2024-02-10',
-      details: 'Tax collection and enforcement',
-      status: 'Rejected',
-      paymentStatus: 'Pending',
-    }      
-  ]
 
   const handleApply = (jobId) => {
-    const jobToApply = allJobs.find(job => job.id === jobId)
-    if (jobToApply && !appliedJobs.find(job => job.id === jobId)) {
-      setAppliedJobs([...appliedJobs, {
-        ...jobToApply,
-        status: 'Under Review',
-        paymentStatus: 'Pending'
-      }])
+    console.log(jobId)
+    const token = localStorage.getItem('token')
+    if (!token) {
+      console.error('Authentication token is missing')
+      return
     }
+    axios.post(`${BaseUrl}/jobs/${jobId}/apply`, {}, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token
+      }
+    }).then((res) => {
+     
+      console.log(res)
+    }).catch((err) => {
+      console.log(err)
+    })
   }
+console.log(localStorage.getItem('token'))
 
   return (
     <div>
-         <Navbar/>
-   
-    <div style={containerStyles}>
-       
-      <div style={tabContainerStyles}>
-        <button 
-          style={tabStyles(activeTab === 'applied')}
-          onClick={() => setActiveTab('applied')}
-        >
-          Applied Jobs ({appliedJobs.length})
-        </button>
-        <button 
-          style={tabStyles(activeTab === 'all')}
-          onClick={() => setActiveTab('all')}
-        >
-          All Jobs
-        </button>
-      </div>
+      <Navbar />
 
-      {activeTab === 'all' ? (
-        <AllJobs jobs={allJobs} onApply={handleApply} />
-      ) : (
-        <AppliedJobs appliedJobs={appliedJobs} />
-      )}
-    </div>
+      <div style={containerStyles}>
+
+        <div style={tabContainerStyles}>
+          <button
+            style={tabStyles(activeTab === 'applied')}
+            onClick={() => setActiveTab('applied')}
+          >
+            Applied Jobs ({appliedJobs.length})
+          </button>
+          <button
+            style={tabStyles(activeTab === 'all')}
+            onClick={() => setActiveTab('all')}
+          >
+            All Jobs
+          </button>
+        </div>
+
+        {activeTab === 'all' ? (
+          <AllJobs jobs={allJobs} onApply={handleApply} />
+        ) : (
+          <AppliedJobs appliedJobs={appliedJobs} />
+        )}
+      </div>
     </div>
   )
 }

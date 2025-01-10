@@ -1,25 +1,15 @@
-'use client'
 
-import React, { useState } from 'react'
-import { Camera, Edit2, Save, X } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { Edit2, Save, X } from 'lucide-react'
 import Navbar from '../components/Navbar'
+import { useDispatch, useSelector } from 'react-redux'
+import { getUser, updateUser } from '../redux/Auth/action'
 
 const UserProfile = () => {
+    const dispatch=useDispatch()
     const [isEditing, setIsEditing] = useState(false)
     const [profileImage, setProfileImage] = useState('https://images.ctfassets.net/h6goo9gw1hh6/2sNZtFAWOdP1lmQ33VwRN3/24e953b920a9cd0ff2e1d587742a2472/1-intro-photo-final.jpg?w=1200&h=992&fl=progressive&q=70&fm=jpg')
-    const [userDetails, setUserDetails] = useState({
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        phone: '+1 234 567 8900',
-        address: '123 Street, City, Country',
-        qualification: 'Bachelor of Technology',
-        experience: '5 years',
-        skills: 'React, JavaScript, Node.js',
-        about: 'Passionate developer with experience in web development and software engineering.'
-    })
-
-    const [editedDetails, setEditedDetails] = useState(userDetails)
-
+   
     const containerStyles = {
         maxWidth: '800px',
         margin: '10px auto',
@@ -74,21 +64,7 @@ const UserProfile = () => {
         objectFit: 'cover'
     }
 
-    const uploadButtonStyles = {
-        position: 'absolute',
-        bottom: '10px',
-        right: '10px',
-        backgroundColor: '#38b2ac',
-        color: 'white',
-        border: 'none',
-        borderRadius: '50%',
-        width: '40px',
-        height: '40px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer'
-    }
+    // Removed unused uploadButtonStyles
 
     const detailsContainerStyles = {
         display: 'grid',
@@ -129,6 +105,22 @@ const UserProfile = () => {
         fontSize: '16px',
         color: '#2d3748'
     }
+    const token=localStorage.getItem('token')
+
+    useEffect(() => {
+        dispatch(getUser())
+    }, [])
+
+const { user = {}, loading } = useSelector((state) => state.AuthReducer)
+console.log(user,loading)
+
+const [editedDetails, setEditedDetails] = useState({})
+const [userDetails, setUserDetails] = useState({})
+
+useEffect(() => {
+    setEditedDetails(user)
+    setUserDetails(user)
+}, [user])
 
     const handleImageUpload = (event) => {
         const file = event.target.files[0]
@@ -142,96 +134,108 @@ const UserProfile = () => {
     }
 
     const handleSave = () => {
-        setUserDetails(editedDetails)
+       dispatch(updateUser(editedDetails)).then(()=>{
+        dispatch(getUser() )
         setIsEditing(false)
+       })
+                
     }
 
     const handleCancel = () => {
-        setEditedDetails(userDetails)
         setIsEditing(false)
+        setEditedDetails(user)
     }
-
     return (
         <div>
-            <Navbar/>
-            <div style={containerStyles}>
-                <div style={headerStyles}>
-                    <h1 style={titleStyles}>Profile Details</h1>
-                    <div style={imageContainerStyles}>
-                        <img
-                            src={profileImage}
-                            alt="Profile"
-                            style={imageStyles}
-                        />
-                        <input
-                            type="file"
-                            id="imageUpload"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            style={{ display: 'none' }}
-                        />
-                        {/* <label htmlFor="imageUpload" style={uploadButtonStyles}>
-                            <Camera size={20} />
-                        </label> */}
+            <Navbar />
+            {user ? (
+                <div style={containerStyles}>
+                    <div style={headerStyles}>
+                        <h1 style={titleStyles}>Profile Details</h1>
+                        <div style={imageContainerStyles}>
+                            <img
+        src={profileImage}
+        alt="Profile"
+        style={imageStyles}
+    />
+    <input
+        type="file"
+                                id="imageUpload"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                style={{ display: 'none' }}
+                            />
+                            {/* <label htmlFor="imageUpload" style={uploadButtonStyles}>
+                                <Camera size={20} />
+                            </label> */}
+                        </div>
+                        {!isEditing ? (
+                            <button
+                                style={buttonStyles}
+                                onClick={() => setIsEditing(true)}
+                            >
+                                <Edit2 size={18} />
+                                Edit Profile
+                            </button>
+                        ) : (
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button style={cancelButtonStyles} onClick={handleCancel}>
+                                    <X size={18} />
+                                    Cancel
+                                </button>
+                                <button style={buttonStyles} onClick={handleSave}>
+                                    <Save size={18} />
+                                    Save Changes
+                                </button>
+                            </div>
+                        )}
                     </div>
-                    {!isEditing ? (
-                        <button
-                            style={buttonStyles}
-                            onClick={() => setIsEditing(true)}
-                        >
-                            <Edit2 size={18} />
-                            Edit Profile
-                        </button>
-                    ) : (
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                            <button style={cancelButtonStyles} onClick={handleCancel}>
-                                <X size={18} />
-                                Cancel
-                            </button>
-                            <button style={buttonStyles} onClick={handleSave}>
-                                <Save size={18} />
-                                Save Changes
-                            </button>
-                        </div>
-                    )}
+    
+                    <div style={detailsContainerStyles}>
+                        {userDetails &&Object.entries(userDetails)
+                            .filter(([key]) => !['documents', 'applications', 'createdAt', 'updatedAt',"_id"].includes(key))
+                            .map(([key, value]) => (
+                                <div key={key} style={fieldStyles}>
+                                    <label style={labelStyles}>
+                                        {key.charAt(0).toUpperCase() + key.slice(1)}
+                                    </label>
+                                    {isEditing ? (
+                                        key === 'about' ? (
+                                            <textarea
+                                                style={textareaStyles}
+                                                value={editedDetails[key] || ''}
+                                                onChange={(e) =>
+                                                    setEditedDetails({
+                                                        ...editedDetails,
+                                                        [key]: e.target.value,
+                                                    })
+                                                }
+                                            />
+                                        ) : (
+                                            <input
+                                                style={inputStyles}
+                                                value={editedDetails[key] || ''}
+                                                onChange={(e) =>
+                                                    setEditedDetails({
+                                                        ...editedDetails,
+                                                        [key]: e.target.value,
+                                                    })
+                                                }
+                                            />
+                                        )
+                                    ) : (
+                                        <div style={valueStyles}>{value}</div>
+                                    )}
+                                </div>
+                            ))}
+                    </div>
                 </div>
-
-                <div style={detailsContainerStyles}>
-                    {Object.entries(userDetails).map(([key, value]) => (
-                        <div key={key} style={fieldStyles}>
-                            <label style={labelStyles}>
-                                {key.charAt(0).toUpperCase() + key.slice(1)}
-                            </label>
-                            {isEditing ? (
-                                key === 'about' ? (
-                                    <textarea
-                                        style={textareaStyles}
-                                        value={editedDetails[key]}
-                                        onChange={(e) => setEditedDetails({
-                                            ...editedDetails,
-                                            [key]: e.target.value
-                                        })}
-                                    />
-                                ) : (
-                                    <input
-                                        style={inputStyles}
-                                        value={editedDetails[key]}
-                                        onChange={(e) => setEditedDetails({
-                                            ...editedDetails,
-                                            [key]: e.target.value
-                                        })}
-                                    />
-                                )
-                            ) : (
-                                <div style={valueStyles}>{value}</div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
+            ) : (
+                <p style={{ textAlign: 'center' }}>No user data available.</p>
+            )}
         </div>
-    )
-}
-
+    );
+    
+}    
 export default UserProfile
 

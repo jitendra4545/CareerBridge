@@ -13,9 +13,9 @@ const HomePage = () => {
         padding: '5px 10px',
         flexWrap: 'wrap',
       }}>
-       <Link to={'/user-page'}> <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#38b2ac', marginBottom: '10px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#38b2ac', marginBottom: '10px' }}>
           Career Bridge 
-        </h1></Link>
+        </h1>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <Link to="/login" style={{ textDecoration: 'none' }}>
             <button style={{
